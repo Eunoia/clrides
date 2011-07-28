@@ -23,7 +23,7 @@ unless(File.exists?("posts.sql"))
 				  table.column :title, :string	
 				  table.column :content , :string
 				  table.column :link , :string
-				  table.column :posted, :datetime
+				  table.column :posted, :integer
 			  end
 		  end
 end
@@ -37,16 +37,10 @@ alias_method :to_s, :to_formatted_s
 end
 posts = rss.items.collect do |r|
 	title = r.title.gsub("-->&gt;"," to ")
-	content = (r.description.gsub(",",".").gsub(%r{</?[^>]+?>}, '')\
-		.tr("\n","   ")[0..-81] )
-	p = Posts.new
-	p.id = r.about[/\d+/].to_i
-	p.title = title
-	p.content = content
-	p.link = r.link
-	p.posted = r.dc_date
-	p.save
-=begin
+	content = r.description.gsub("<br>", "\n")
+	content = content[/^.+/]
+		  #.gsub(%r{</?[^>]+?>}, '') #This should strip html
+	content = content.tr(",",".").tr("\n","   ")[0..-5]
 	Posts.new({
 		:id => r.about[/\d+/],
 		:title => title,
@@ -54,8 +48,4 @@ posts = rss.items.collect do |r|
 		:link => r.link,
 		:posted => r.dc_date
 	}).save
-=end
 end
-debugger
-
-print 12345
