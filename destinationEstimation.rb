@@ -1,3 +1,4 @@
+require 'cgi'
 require 'rss'
 require 'net/http'
 require 'rubygems'
@@ -16,6 +17,7 @@ class String
     def blue; colorize(self, "\e[1m\e[34m"); end
     def dark_blue; colorize(self, "\e[34m"); end
     def pur; colorize(self, "\e[1m\e[35m"); end
+    def black; colorize(self, "\e[1m\e[30m"); end
     def colorize(text, color_code)  "#{color_code}#{text}\e[0m" end
 end
 
@@ -30,9 +32,28 @@ end
 Posts.find(:all).each do |p|
 	regex = /to (\w+( +|\/)?)+/i
 	title = p.title 
+	print p.cid.to_s+"   "
 	dest = title[regex]
+	if(dest==nil)
+		puts title[0..60].red
+		next
+	end
+	dest.gsub!("today","")
+	dest.gsub!(/leaving.+/, "")
+	dest.gsub!(/\d.+/,"")
 	puts title.gsub(dest,dest.green) unless dest==nil
-	puts title.red if dest==nil
+	dest = dest.split[1..-1]
+	url = "http://maps.googleapis.com/maps/api/geocode/json"
+	url += "?sensor=false&address="
+	url += CGI::escape dest.join(" ")
+	res = Net::HTTP.get(URI.parse(url))
+	sleep(0.1)
+	puts (" "*14) + "ZERO_RESULTS".black if res=~/ZERO_RESULTS/
+	next if res=~/ZERO_RESULTS/
+	json = JSON::Parser.new res
+	json  = json.parse
+	puts json if json["results"][0]["geometry"]["location"]==nil
+	latlng = json["results"][0]["geometry"]["location"]
+	puts " "*14 +latlng.to_a.join("  ")
 end
 
-#http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=place
