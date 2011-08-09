@@ -30,13 +30,20 @@ class Posts < ActiveRecord::Base
 	validates_uniqueness_of :cid
 end
 Posts.find(:all).each do |p|
+	if ARGV[0]
+		debugger if p.cid==ARGV[0].to_i
+	end
 	regex = /to (\w+( +|\/)?)+/i
-	title = p.title 
+	title = p.title[0..60]
 	print p.cid.to_s+"   "
 	dest = title[regex]
 	if(dest==nil)
 		puts title[0..60].red
 		next
+	end
+	stopwards  = Date::DAYNAMES + Date::ABBR_DAYNAMES
+	stopwards.each do |word|
+		dest.gsub!(word, "")
 	end
 	dest.gsub!("today","")
 	dest.gsub!(/leaving.+/, "")
