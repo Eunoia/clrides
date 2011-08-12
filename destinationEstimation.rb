@@ -30,23 +30,30 @@ class Posts < ActiveRecord::Base
 	validates_uniqueness_of :cid
 end
 Posts.find(:all).each do |p|
-	if ARGV[0]
-		debugger if p.cid==ARGV[0].to_i
-	end
 	regex = /to (\w+( +|\/)?)+/i
+	p.title.gsub!(/ sb /i, " Santa Barbara ")
+	p.title.gsub!(/ sd /i, " San Diego ")
+
+
 	title = p.title[0..60]
 	print p.cid.to_s+"   "
 	dest = title[regex]
+	dest = dest[regex] if dest=~/ to /
 	if(dest==nil)
 		puts title[0..60].red
 		next
 	end
+	if ARGV[0]
+		debugger if p.cid==ARGV[0].to_i
+	end
+
 	stopwards  = Date::DAYNAMES + Date::ABBR_DAYNAMES
 	stopwards.each do |word|
 		dest.gsub!(word, "")
 	end
 	dest.gsub!("today","")
 	dest.gsub!(/leaving.+/, "")
+	dest.gsub!(/Tomorrow.+/i, "")
 	dest.gsub!(/\d.+/,"")
 	puts title.gsub(dest,dest.green) unless dest==nil
 	dest = dest.split[1..-1]
@@ -61,6 +68,6 @@ Posts.find(:all).each do |p|
 	json  = json.parse
 	puts json if json["results"][0]["geometry"]["location"]==nil
 	latlng = json["results"][0]["geometry"]["location"]
-	puts " "*14 +latlng.to_a.join("  ")
+	puts " "*14 +latlng.to_a.reverse.join("  ")
 end
 

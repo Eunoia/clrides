@@ -34,7 +34,7 @@ class Posts < ActiveRecord::Base
 end
 x=0
 posts = rss.items.collect do |r|
-	title = r.title.gsub("-->&gt;"," to ")
+	title = r.title.gsub("-+>&gt;"," to ")
 	content = r.description.gsub("<br>", "\n")
 	content = content[/^.+/]
 		  #.gsub(%r{</?[^>]+?>}, '') #This should strip html
