@@ -1,0 +1,32 @@
+.station{
+  font-family: verdana;
+  font-size:1.5ex;
+  margin-left: 6px;
+  width: 40ex;
+  border-left:11px solid #808080; 
+  margin-bottom: 2.5ex;
+  height: 3px;
+  padding-left:1px;
+}
+.station span{
+  top: -7px;
+  position:relative;
+}
+
+.transfer{ 
+font-size:2ex;
+height:4px; 
+//font-weight: bold; 
+padding-left:1ex;
+border-left:20px solid #808080;
+//margin-bottom: 2.5ex;
+
+}
+.terminus{
+  padding:0px;
+  position:absolute;
+left:10px;
+top:15px;
+  width:4px;
+    border:2px solid #808080;
+  }
