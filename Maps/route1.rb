@@ -50,9 +50,21 @@ points.each do |point|
 			res = Net::HTTP.get(URI.parse(url))
 			json = JSON::Parser.new res
 			json  = json.parse
+			debugger
+			if(json["status"]["value"]==18)
+				puts "Geohost geocoding limit reached"
+				puts "Try again tomarrow, or sign up for an acount"
+				puts "http://geonames.org/"
+			end
 			name = json["geonames"][0]["name"]
+			sleep(1)
 		end
 		if Geocoder==:yahoo
+			unless(File.exists?("yAppId"))
+				print "If you don't have a Yahoo Application ID, "
+				print "please aquire one at http://bit.ly/nd8HpK "
+				exit
+			end
 			appid = File.open("yAppId").read.chomp
 			url = "http://where.yahooapis.com/geocode?"
 			url += "gflags=R&flags=J&appid=#{appid}&q=#{p.join(",")}"
@@ -98,6 +110,7 @@ stops = names.collect do |name|
 	{ :tPoint=>tPoint, :name=>placeName, :pop => json[0]["pop"] }
 end
 stops.compact!.uniq!
+pp stops.map{ |l| l[:name]}.join("|")
 fp = File.open("list.html", "w")
 fp.write "<html><title>#{org} to #{dest}</title><body>\n"
 fp.write %q{<link rel="stylesheet" type="text/css" href="list.css" />}
@@ -110,3 +123,4 @@ stops.each do |stop|
   fp.write "</div>\n"
   end
 fp.write "</div></body></html>\n"
+

@@ -7,19 +7,7 @@ require 'active_record'
 require 'ruby-debug'
 require 'sqlite3'
 require 'json'
-
-class String
-
-    def red; colorize(self, "\e[1m\e[31m"); end
-    def green; colorize(self, "\e[1m\e[32m"); end
-    def dark_green; colorize(self, "\e[32m"); end
-    def yellow; colorize(self, "\e[1m\e[33m"); end
-    def blue; colorize(self, "\e[1m\e[34m"); end
-    def dark_blue; colorize(self, "\e[34m"); end
-    def pur; colorize(self, "\e[1m\e[35m"); end
-    def black; colorize(self, "\e[1m\e[30m"); end
-    def colorize(text, color_code)  "#{color_code}#{text}\e[0m" end
-end
+require 'colors'
 
 
 ActiveRecord::Base.establish_connection(
@@ -29,12 +17,12 @@ ActiveRecord::Base.establish_connection(
 class Posts < ActiveRecord::Base
 	validates_uniqueness_of :cid
 end
-Posts.find(:all).each do |p|
+
+Posts.find(:all)[0..5].each do |p|
 	regex = /to (\w+( +|\/)?)+/i
 	p.title.gsub!(/ sb /i, " Santa Barbara ")
 	p.title.gsub!(/ sd /i, " San Diego ")
-
-
+	p.title.gusb!(/ TMRW /i, " Tomorrow ")
 	title = p.title[0..60]
 	print p.cid.to_s+"   "
 	dest = title[regex]
@@ -47,8 +35,9 @@ Posts.find(:all).each do |p|
 		debugger if p.cid==ARGV[0].to_i
 	end
 
-	stopwards  = Date::DAYNAMES + Date::ABBR_DAYNAMES
-	stopwards.each do |word|
+	stopwords  = Date::DAYNAMES + Date::ABBR_DAYNAMES
+	stopwords += %w{ this ASAP Tomorrow }
+	stopwords.each do |word|
 		dest.gsub!(word, "")
 	end
 	dest.gsub!("today","")
