@@ -34,6 +34,7 @@ end
 class Posts < ActiveRecord::Base
 	validates_uniqueness_of :cid
 end
+while 1
 x=0
 cities = [:losangeles, :santabarbara, :santamaria, :slo, :monterey, :sfbay, :portland, :seattle]
 cities.each do |city|
@@ -41,7 +42,8 @@ cities.each do |city|
 	rss = RSS::Parser.parse(Net::HTTP.get(URI.parse(feed(city))),true)
 	redo if rss == nil
 	posts = rss.items.collect do |r|
-		title = r.title.gsub("-+>&gt;"," to ")
+		title = r.title.gsub("-+&gt;"," to ")
+		title = r.title.gsub(">"," to ")
 		content = r.description.gsub("<br>", "\n")
 		content = content[/^.+/]
 		#.gsub(%r{</?[^>]+?>}, '') #This should strip html
@@ -63,3 +65,5 @@ cities.each do |city|
 	end
 end
 puts x.to_s+ " posts added to database"
+sleep(60*60)
+end
