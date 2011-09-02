@@ -41,12 +41,14 @@ cities.each do |city|
 	rss = RSS::Parser.parse(Net::HTTP.get(URI.parse(feed(city))),true)
 	redo if rss == nil
 	posts = rss.items.collect do |r|
-		title = r.title.gsub("-+&gt;"," to ")
+		title = r.title.gsub("-*&gt;"," to ")
 		title = r.title.gsub(">"," to ")
-		content = r.description.gsub("<br>", "\n")
-		content = content[/^.+/]
+		content = r.description
+		content = r.description.gsub("<br.{0,3}>", "\n")
+		content = r.description[0..r.description.index("<!-- START")-1]
 		#.gsub(%r{</?[^>]+?>}, '') #This should strip html
-		content = content.tr(",",".").tr("\n","   ")[0..-5]
+		#content = content.tr(",",".").tr("\n","   ")[0..-5]
+		content = Hpricot::parse(content).inner_text
 		id = r.about[/\d+/]
 		p = Posts.new({
 			:cid => 		id,
