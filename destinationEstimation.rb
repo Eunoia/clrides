@@ -17,32 +17,62 @@ ActiveRecord::Base.establish_connection(
 class Posts < ActiveRecord::Base
 	validates_uniqueness_of :cid
 end
-#37..49 
-Posts.find_all_by_city(:santabarbara).each do |p|
+if ARGV[0]
+	#	debugger if p.cid==ARGV[0].to_i
+	posts = [Posts.find_by_cid(ARGV[0].to_sym)]
+else
+	posts = Posts.find_all_by_city(:santabarbara)[245..-1] 
+end
+posts.each do |p|
 	regex = /to +(\w+( +|\/)?)+/i
+	#It might be a good idea to also change "2" to to; however it could 
+	#break chronemics, so maybe latter.
+	p.title.gsub!(/-*&gt;/, " to ")   
 	p.title.gsub!(/ sb /i, " Santa Barbara ")
+	#Google thinks that lodi italy is more relevent
+	p.title.gsub!(/ lodi /i, " Lodi California")
+	p.title.gsub!(/ ebay /i, " East Bay ")
 	p.title.gsub!(/ sd /i, " San Diego ")
+	#Fun fact: Google returns the choords of sac airport, but can't
+	#return the chordinates of the the city of sacremento
+	p.title.gsub!(/ sacramento /i, " sac ")
+	p.title.gsub!(/ iv /i, " Isla Vista ")
+	p.title.gsub!(/ l.?a.? /i, " Los angeles ")
+	#This whole sections needs to take into account 
+	#that people uses slashes. 
+	p.title.gsub!(/ o.?c.?( |\/)/i, " Anaheim/Irvine ")
 	p.title.gsub!(/ sc /i, " Santa Cruz, CA ")
 	p.title.gsub!(/ TMRW /i, " Tomorrow ")
-	p.title.gsub!(/-+&gt;/, " to ")   
+	p.title.gsub!(/ brc /i, " burning man ")
+	p.title.gsub!(/ the playa /i, " burning man ")
+
+	p.title.gsub!(/-/, " to ") unless p.title=~/to/
 	title = p.title[0..60]
 	print p.cid.to_s+"   "
 	dest = title[regex]
-	dest = dest[regex] if dest=~/ to /
 	if(dest==nil)
 		puts title[0..60].red
 		next
 	end
-	if ARGV[0]
-		debugger if p.cid==ARGV[0].to_i
+	while(dest[2..-1]=~/to /)
+			  dest = dest[3..-1][regex] #if dest[2..-1]=~/to /
 	end
-	stopwords  = Date::DAYNAMES + Date::ABBR_DAYNAMES
-	stopwords += %w{ this early ASAP will Tomorrow today }
+
+	stopwords  = Date::DAYNAMES + Date::ABBR_DAYNAMES#.map{ |day| day+" " }
+	stopwords[stopwords.index("Mon")]="Mon "
+	stopwords += %w{ this early ASAP will tomorrow today }
 	#bound to cause problems later, as some cities contain these words
-	#in them. Case in point, "Stockton"
-	stopwords += %w{ on space }
+	#in them. Case in point, "StocktON", "PlesentON", and "Santa MONica"
+	stopwords += %w{ on space Early late }
+	#From is a special word, as it is the head of a prepositional phrase
+	stopwords += %w{ from }
+	#Holidays 
+	stopwords += %w{ labor }
+	#days of the month
+	stopwords += %w{ sept }
 	stopwords.each do |word|
-		dest.gsub!(/#{word}.+/, "")
+		#debugger if word=~/sund/i
+		dest.gsub!(/#{word}(\W|\z).*/i, "  ")
 	end
 	dest.gsub!("today","")
 	dest.gsub!(/leaving.+/, "")
@@ -61,12 +91,12 @@ Posts.find_all_by_city(:santabarbara).each do |p|
 		#it will pick the furthest from the origion craigslist
 		dest = dest.split(" or ")[0]
 	end
-	puts title.gsub(dest,dest.green) unless dest==nil
-	dest = dest.split[1..-1]
 
+	dest = dest.split[1..-1].join(" ")
+	puts title.gsub(dest,dest.green) unless dest==nil
 	url = "http://maps.googleapis.com/maps/api/geocode/json"
-	url += "?sensor=false&address="
-	url += CGI::escape dest.join(" ")
+	url += "?sensor=false&region=usa&address="
+	url += CGI::escape dest#.join(" ")
 	res = Net::HTTP.get(URI.parse(url))
 	sleep(0.1)
 	puts (" "*14) + "ZERO_RESULTS".black if res=~/ZERO_RESULTS/

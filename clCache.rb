@@ -34,7 +34,6 @@ end
 class Posts < ActiveRecord::Base
 	validates_uniqueness_of :cid
 end
-while 1
 x=0
 cities = [:losangeles, :santabarbara, :santamaria, :slo, :monterey, :sfbay, :portland, :seattle]
 cities.each do |city|
@@ -65,5 +64,3 @@ cities.each do |city|
 	end
 end
 puts x.to_s+ " posts added to database"
-sleep(60*60)
-end
