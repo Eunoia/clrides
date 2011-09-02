@@ -21,7 +21,7 @@ if ARGV[0]
 	#	debugger if p.cid==ARGV[0].to_i
 	posts = [Posts.find_by_cid(ARGV[0].to_sym)]
 else
-	posts = Posts.find_all_by_city(:santabarbara)[245..-1] 
+	posts = Posts.find_all_by_city(:santabarbara)[0..-1] 
 end
 posts.each do |p|
 	regex = /to +(\w+( +|\/)?)+/i
@@ -60,18 +60,17 @@ posts.each do |p|
 
 	stopwords  = Date::DAYNAMES + Date::ABBR_DAYNAMES#.map{ |day| day+" " }
 	stopwords[stopwords.index("Mon")]="Mon "
-	stopwords += %w{ this early ASAP will tomorrow today }
+	stopwords += %w{ this early tonight ASAP will tomorrow today }
 	#bound to cause problems later, as some cities contain these words
 	#in them. Case in point, "StocktON", "PlesentON", and "Santa MONica"
-	stopwords += %w{ on space Early late }
+	stopwords += [ " on", "space", "Early", "late" ]
 	#From is a special word, as it is the head of a prepositional phrase
 	stopwords += %w{ from }
 	#Holidays 
 	stopwords += %w{ labor }
-	#days of the month
-	stopwords += %w{ sept }
+	stopwords += %w{ sept aug sep }
 	stopwords.each do |word|
-		#debugger if word=~/sund/i
+		#debugger if word=~/on/i
 		dest.gsub!(/#{word}(\W|\z).*/i, "  ")
 	end
 	dest.gsub!("today","")
@@ -93,7 +92,8 @@ posts.each do |p|
 	end
 
 	dest = dest.split[1..-1].join(" ")
-	puts title.gsub(dest,dest.green) unless dest==nil
+	puts title.sub(dest,dest.green) unless dest==nil
+	
 	url = "http://maps.googleapis.com/maps/api/geocode/json"
 	url += "?sensor=false&region=usa&address="
 	url += CGI::escape dest#.join(" ")
