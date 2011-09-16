@@ -19,9 +19,10 @@ class Posts < ActiveRecord::Base
 end
 if ARGV[0]
 	#	debugger if p.cid==ARGV[0].to_i
-	posts = [Posts.find_by_cid(ARGV[0].to_sym)]
+	posts = [Posts.find_by_cid(ARGV[0])]
 else
-	posts = Posts.find_all_by_city(:santabarbara)[0..-1] 
+	#posts = Posts.all(:conditions => {:posted => (Time.now.to_i-(60*60*10))..Time.now.to_i, :city=> :santabarbara })
+	posts = Posts.find_all_by_city(:santabarbara)
 end
 posts.each do |p|
 	regex = /to +(\w+( +|\/)?)+/i
@@ -33,6 +34,7 @@ posts.each do |p|
 	p.title.gsub!(/ lodi /i, " Lodi California")
 	p.title.gsub!(/ ebay /i, " East Bay ")
 	p.title.gsub!(/ sd /i, " San Diego ")
+	p.title.gsub!(/ sj /i, " San Jose ")
 	#Fun fact: Google returns the choords of sac airport, but can't
 	#return the chordinates of the the city of sacremento
 	p.title.gsub!(/ sacramento /i, " sac ")
@@ -45,9 +47,10 @@ posts.each do |p|
 	p.title.gsub!(/ TMRW /i, " Tomorrow ")
 	p.title.gsub!(/ brc /i, " burning man ")
 	p.title.gsub!(/ the playa /i, " burning man ")
-
-	p.title.gsub!(/-/, " to ") unless p.title=~/to/
-	title = p.title[0..60]
+	#At times, people can be creative in their use of pp heads
+	p.title.gsub!(/-/, " to ") unless p.title=~/ to /
+	p.title.gsub!(/:/, " to ") unless p.title=~/ to /
+	title = p.title#[0..60]
 	print p.cid.to_s+"   "
 	dest = title[regex]
 	if(dest==nil)
@@ -57,8 +60,9 @@ posts.each do |p|
 	while(dest[2..-1]=~/to /)
 			  dest = dest[3..-1][regex] #if dest[2..-1]=~/to /
 	end
-
-	stopwords  = Date::DAYNAMES + Date::ABBR_DAYNAMES#.map{ |day| day+" " }
+	
+	stopwords  = Date::DAYNAMES + Date::ABBR_DAYNAMES
+	stopwords += (0..9).to_a.map{ |n| n.to_s }
 	stopwords[stopwords.index("Mon")]="Mon "
 	stopwords += %w{ this early tonight ASAP will tomorrow today }
 	#bound to cause problems later, as some cities contain these words
@@ -92,13 +96,15 @@ posts.each do |p|
 	end
 
 	dest = dest.split[1..-1].join(" ")
-	puts title.sub(dest,dest.green) unless dest==nil
-	
+	puts title.sub(dest,dest.green)[0..70] unless dest==nil
 	url = "http://maps.googleapis.com/maps/api/geocode/json"
-	url += "?sensor=false&region=usa&address="
+	#url += "?sensor=false&region=com&address="
+	url += "?sensor=false&bounds=51,-69|33,-129&address="
 	url += CGI::escape dest#.join(" ")
-	res = Net::HTTP.get(URI.parse(url))
-	sleep(0.1)
+	puts url
+	#url.gsub!(",","%2C")
+	res = Net::HTTP.get(URI.parse(URI::encode(url)))
+	sleep(0.8)
 	puts (" "*14) + "ZERO_RESULTS".black if res=~/ZERO_RESULTS/
 	next if res=~/ZERO_RESULTS/
 	json = JSON::Parser.new res
