@@ -1,16 +1,23 @@
-#Yay, colors!
-#
 class String
-
-    def red; colorize(self, "\e[1m\e[31m"); end
-    def green; colorize(self, "\e[1m\e[32m"); end
-    def dark_green; colorize(self, "\e[32m"); end
-    def yellow; colorize(self, "\e[1m\e[33m"); end
-    def blue; colorize(self, "\e[1m\e[34m"); end
-    def dark_blue; colorize(self, "\e[34m"); end
-    def pur; colorize(self, "\e[1m\e[35m"); end
-    def black; colorize(self, "\e[1m\e[30m"); end
-    def colorize(text, color_code)  "#{color_code}#{text}\e[0m" end
+	 {
+		  :reset          =>  0,
+		  :bold           =>  1,
+		  :dark           =>  2,
+		  :underline      =>  4,
+		  :blink          =>  5,
+		  :negative       =>  7,
+		  :black          => 30,
+		  :red            => 31,
+		  :green          => 32,
+		  :yellow         => 33,
+		  :blue           => 34,
+		  :magenta        => 35,
+		  :cyan           => 36,
+		  :white          => 37,
+	 }.each do |key, value|
+		  define_method key do
+				"\e[#{value}m" + self + "\e[0m"
+		  end
+	 end
 end
-
 
