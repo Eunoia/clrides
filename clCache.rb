@@ -28,11 +28,25 @@ unless(File.exists?("posts.sql"))
 			table.column :posted, :integer
 			table.column :mode, :integer
 		end
+		create_table(:results, :id=>false) do |table|
+			table.column :cid, :integer
+			table.column :dest, :string  
+			table.column :orig , :string
+			table.column :lat, :integer
+			table.column :lng , :integer
+			table.column :leaving, :integer
+			table.column :algorithm, :integer
+		end
 	end
 end
 
 class Posts < ActiveRecord::Base
 	validates_uniqueness_of :cid
+	has_one(:result, {:foreign_key => :cid , :primary_key => :cid })
+end
+class Results < ActiveRecord::Base
+	validates_uniqueness_of :cid
+	belongs_to(:posts,{ :foreign_key => :cid, :primary_key => :cid})
 end
 x=0
 cities = [:losangeles, :santabarbara, :santamaria, :slo, :monterey, :sfbay, :portland, :seattle]
@@ -58,6 +72,15 @@ cities.each do |city|
 			:city =>    r.link.downcase[/[a-z]+\./].chop,
 			:posted => 	r.dc_date,
 			:mode => 	0
+		}).save
+		Results.new({
+			:cid =>		id,
+			:dest => 	"",
+			:orig =>		"",
+			:lat	=>		-1,
+			:lng	=>		-1,
+			:leaving =>	-1,
+			:algorithm =>0
 		}).save
 		if p
 			x+=1

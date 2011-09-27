@@ -17,7 +17,12 @@ ActiveRecord::Base.establish_connection(
 class Posts < ActiveRecord::Base
 	validates_uniqueness_of :cid
 end
-if ARGV[0]
+
+#this would work by loading all rows 
+#this would work by loading the row, if there isn't data in a collom, divine it.
+cgi = cgi.new
+params = cgi.params
+cid = params['cid'].to_i
 	#	debugger if p.cid==ARGV[0].to_i
 	posts = [Posts.find_by_cid(ARGV[0])]
 else
