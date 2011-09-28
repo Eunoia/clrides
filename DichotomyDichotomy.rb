@@ -13,19 +13,10 @@ require 'sqlite3'
 #require 'json'
 require 'classifier'
 require 'colors'
+require './ardbinfo.rb'
+include Database
 
 
-
-ActiveRecord::Base.establish_connection(
-:adapter => "sqlite3",
-:database => "posts.sql"
-)
-class Posts < ActiveRecord::Base
-	validates_uniqueness_of :cid
-end
-class Results < ActiveRecord::Base
-	validates_uniqueness_of :cid
-end
 places = YAML::load File.open("cities.yaml").read
 places = places.select{ |l| l=~/ / }.map{ |l| l.split }.flatten.uniq
 places += Date::ABBR_DAYNAMES+Date::ABBR_MONTHNAMES+Date::MONTHNAMES+Date::DAYNAMES
