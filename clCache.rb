@@ -5,18 +5,12 @@ require 'hpricot'
 require 'active_record'
 require 'ruby-debug'
 require 'sqlite3'
+require './ardbinfo.rb'
+include Database
 
 def feed(city="santabarbara")
 	"http://#{city.to_s}.craigslist.org/rid/index.rss"
 end
-
-
-ActiveRecord::Base.establish_connection(
-	:adapter => "sqlite3",
-	#:dbfile  => ":memory:"
-	:database => "posts.sql"
-)
-
 unless(File.exists?("posts.sql")) 
 	ActiveRecord::Schema.define do
 		create_table(:posts, :id=>false) do |table|
@@ -40,6 +34,13 @@ unless(File.exists?("posts.sql"))
 	end
 end
 
+=begin
+ActiveRecord::Base.establish_connection(
+	:adapter => "sqlite3",
+	#:dbfile  => ":memory:"
+	:database => "posts.sql"
+)
+
 class Posts < ActiveRecord::Base
 	validates_uniqueness_of :cid
 	has_one(:result, {:foreign_key => :cid , :primary_key => :cid })
@@ -48,6 +49,7 @@ class Results < ActiveRecord::Base
 	validates_uniqueness_of :cid
 	belongs_to(:posts,{ :foreign_key => :cid, :primary_key => :cid})
 end
+=end
 x=0
 cities = [:losangeles, :santabarbara, :santamaria, :slo, :monterey, :sfbay, :portland, :seattle]
 cities.each do |city|
