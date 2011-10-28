@@ -12,10 +12,12 @@ ActiveRecord::Base.establish_connection(
 
 class Posts < ActiveRecord::Base
    validates_uniqueness_of :cid
-   has_one(:result, {:foreign_key => :cid , :primary_key => :cid })
+   set_primary_key :cid
+#   has_one(:result, {:foreign_key => :cid , :primary_key => :cid })
 end
 class Results < ActiveRecord::Base
    validates_uniqueness_of :cid
-   belongs_to(:posts,{ :foreign_key => :cid, :primary_key => :cid})
+   set_primary_key :cid
+#   belongs_to(:posts,{ :foreign_key => :cid, :primary_key => :cid})
 end
 end

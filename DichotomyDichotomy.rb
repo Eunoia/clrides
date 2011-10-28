@@ -69,12 +69,13 @@ train3.each { |datum| b.train(datum[:classification],datum[:text]) }
 if ARGV[0]
 	results = [Results.find_by_cid(ARGV[0].to_sym)]
 else
-#	results = Results.find(:all, :conditions => { :wo => -1 })
-  posts = Posts.find(:all)
+	results = Results.find(:all, :conditions => { :wo => -1 })
 end
-posts.each do |post|
-#results.each do |result|
-  #post = Posts.find_all_by_cid(result.cid)[0]
+errors = [] 
+results.each do |result|
+  post = Posts.find_all_by_cid(result.cid)[0]
+  errors << result.cid  if post==nil
+  next if post==nil
   text = post.title
   if(text=~/\)/ and text=~/\(/)
 	 l = text.index("(")
@@ -91,17 +92,11 @@ posts.each do |post|
   resp = b.classify(text)
   puts resp.bold+"\t\t"+post.title[0..60]
   wo = resp.to_s.downcase.intern==:offered ? 1 : 0
-	#result.algorithm = 0 if result.algorithm==-1
-	#result.save
-	Results.new({
-	  :cid => post.cid,
-	  :wo => wo,
-	  :algorithm => 0
-	}).save
+  result.wo = wo
+  result.algorithm = 0
+	result.save
 end
 time = Time.now.to_i - start
-m = time/60
+m = (time/60).to_i
 s = time%60
-print posts.length.to_s+" posts classified in #{m}:#{s} minutes \n"
-
-	
+print results.length.to_s+" posts classified in #{m}:#{s} minutes \n"

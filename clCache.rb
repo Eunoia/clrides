@@ -24,32 +24,14 @@ unless(File.exists?("posts.sql"))
 		end
 		create_table(:results, :id=>false) do |table|
 			table.column :cid, :integer
+			table.column :wo, :integer
 			table.column :dest, :string  
 			table.column :orig , :string
-			table.column :lat, :integer
-			table.column :lng , :integer
 			table.column :leaving, :integer
 			table.column :algorithm, :integer
 		end
 	end
 end
-
-=begin
-ActiveRecord::Base.establish_connection(
-	:adapter => "sqlite3",
-	#:dbfile  => ":memory:"
-	:database => "posts.sql"
-)
-
-class Posts < ActiveRecord::Base
-	validates_uniqueness_of :cid
-	has_one(:result, {:foreign_key => :cid , :primary_key => :cid })
-end
-class Results < ActiveRecord::Base
-	validates_uniqueness_of :cid
-	belongs_to(:posts,{ :foreign_key => :cid, :primary_key => :cid})
-end
-=end
 x=0
 cities = [:losangeles, :santabarbara, :santamaria, :slo, :monterey, :sfbay, :portland, :seattle]
 cities.each do |city|
@@ -65,26 +47,24 @@ cities.each do |city|
 		#.gsub(%r{</?[^>]+?>}, '') #This should strip html
 		#content = content.tr(",",".").tr("\n","   ")[0..-5]
 		content = Hpricot::parse(content).inner_text
-		id = r.about[/\d+/]
-		p = Posts.new({
-			:cid => 		id,
-			:title => 	title,
-			:content => content,
-			:link => 	r.link,
-			:city =>    r.link.downcase[/[a-z]+\./].chop,
-			:posted => 	r.dc_date,
-			:mode => 	0
-		}).save
-		Results.new({
-			:cid =>		id,
-			:dest => 	"",
-			:orig =>		"",
-			:lat	=>		-1,
-			:lng	=>		-1,
-			:leaving =>	-1,
-			:algorithm =>0
-		}).save
-		if p
+		cid = r.about[/\d+/].to_i
+		result = Results.new();
+		result.cid = cid
+		result.wo = -1
+		result.dest = ""
+		result.orig = ""
+		result.leaving = -1
+		result.algorithm = 0
+    post = Posts.new();
+    post.mode = 	0
+    post.cid = 		cid.to_i
+    post.title = 	title
+    post.content = content
+    post.link = 	r.link
+    post.city =    r.link.downcase[/[a-z]+\./].chop
+    post.posted = 	r.dc_date
+		debugger if post.cid==nil
+		if post.save==true and result.save==true
 			x+=1
 			puts "NEW! "+title[0..70]
 		end
