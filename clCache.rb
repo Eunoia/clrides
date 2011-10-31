@@ -6,6 +6,7 @@ require 'active_record'
 require 'ruby-debug'
 require 'sqlite3'
 require './ardbinfo.rb'
+require 'colors'
 include Database
 
 def feed(city="santabarbara")
@@ -64,10 +65,15 @@ cities.each do |city|
     post.city =    r.link.downcase[/[a-z]+\./].chop
     post.posted = 	r.dc_date
 		debugger if post.cid==nil
-		if post.save==true and result.save==true
-			x+=1
-			puts "NEW! "+title[0..70]
-		end
+		if(post.save==true)
+		  if(result.save==true)
+			  x+=1
+			  puts "NEW! "+title[0..70]
+		  end
+	  else
+	    #These posts were not saved. 
+	    #puts post.cid.to_s.negative.underline.red+" #{post.title}"
+    end
 	end
 end
 puts x.to_s+ " posts added to database"

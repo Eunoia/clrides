@@ -1,0 +1,80 @@
+Documentations for the salt api
+
+All the textual processing is a separate desecrate component from the api.
+
+The api exposes the classified information of processed posts. 
+
+The Api is written in node.js and the express framework. The API has two outputs, json and jsonp
+
+Craigslist assigns a post a unique non replicated post id number. In salt, this id number is used to retrieve information about the post. The Craigslist Post ID Number(cid) of a post can be found in the url of the post, and the end of the body of a post. 
+
+It is with this number that the salt api can be accessed. 
+
+The api is passed the cids separated by a single non numeric character, or forward slash, 
+
+
+Valid requests:
+server/wo/0000000001:0000000002:0000000003:0000000004
+server/dest/0000000001!0000000002^0000000003&0000000004
+server/dest/0000000001
+Personally, I find that : and ^ make for the most readable separators. I use : in this document
+
+Invalid Requests:
+server/wo/0000000001xx0000000002xx0000000003xx0000000004
+Why? Because it is more than one character. 
+
+server/orig/0000000001800000000028000000000380000000004
+Why? Because 8 is a numeral and not a separator
+
+server/dest/0000000001/0000000002/0000000003/0000000004
+Why? Because slashes are not supported. 
+
+
+Fitness, not just for athletes. 
+
+A post is fit if it can be classified along the axies of the wanted offered dichotomy, the spatial detentions of orig/dest and chronemicly. A fit post has an single origin and a  single destination, and a specific, if not vague time of departure. If a post cannot be classified along these axises, then it is unfit, and not classified. 
+
+People offering to be taxis: Unfit because no fixed locations or time. 
+People trying to rent you a car: Unfit, no fixed locations or time.
+Ridejoy aggrigations. 
+People looking to "get out" =Unfit= Out is not specific.
+ 
+poeple looking to "go back east" =fit= 
+People offering to hual things: Fit when orign and destination are fixed. When the hauler will come to you and take your stuff to the dump, then  
+
+The format of a query is as such:
+
+server/requestType/cid:cid:...
+
+There are currently six possible queries. 
+
+/cid/
+/fit/
+/wo/
+/dest/
+/orig/
+/leaving/
+
+
+/cid/
+This returns the information available for a cid
+eg
+{ :0000000001: ["wo","dest","orig"], :0000000002: ["wo"]}
+
+/fit/
+This returns if a post is fit or unfit. 
+
+no jsonP
+server/cid
+server/wo 
+server/dest
+server/orig
+server/leaving
+
+with jsonP
+server/cidp
+server/wop
+server/destp
+server/origp
+server/leavingp
+

@@ -94,7 +94,7 @@ cities += %w{ CSULA Telluride Eastern UCSC SFV NC KC wyoming Louisiana }
 cities += %w{ Charboneau  Navodo  anchorage UCSC  atlantic Yellowstone }
 cities += %w{ Toppenish UCSC Durango lacey cabo Tonasket Spanaway elum }
 cities += %w{ Kelowna Tucson FLAGSTAFF SEDONA  financial fair hangtown }
-cities += %w{ cle }
+cities += %w{ cle UCD Eastside}
 #The pnw devides towns into quarters. My regexp can't hack it, so maybe latter
 #cities += %w{  } 
 fp = File.open("locals.csv","w")
@@ -105,10 +105,10 @@ notCities += %w{ play warm riders two one last a gas may berlin }
 notCities += %w{ scenic wonder  k sisters friend end round time } 
 notCities += %w{ trailer travel  dew village r  ready d out day }
 notCities += %w{ albina Alviso giant bull American  Avenue date }
-notCities += %w{ fair dog  way  manor  blink  old place R sugar }
-notCities += %w{ bucks station love bunch Vacation Affordable }
+notCities += %w{ fair dog  way  manor  blink  old place   sugar }
+notCities += %w{ bucks station love bunch  vacation  affordable }
+notCities += %w{ joes }
 notCities.each { |notCity| cities.delete(notCity) }
-
 @cities = cities
 malWords =  %w{ pool limo calander Ridejoy BayShuttle dui  casino } 
 malWords += %w{ commute taxi rentals designated zimride commuting }
@@ -128,7 +128,6 @@ redoLevel = 0;
 regex_d = /\Wto(o)?(ward(s)?)? +(\w+( +|\/|\.)?)+/i
 regex_o = /\Wfrom +(\w+( +|\/)?)+/i
 @regex_d = regex_d
-debugger
 posts.each do |p|
   print p.cid.to_s+"   "
 	p.title = (" "+p.title+" ")
@@ -302,6 +301,7 @@ posts.each do |p|
 	p.title.gsub!(/ oly /i, " Olympia ")
 	p.title.gsub!(/ tri *-? *cit\w+ /i," TriCities ")
 	p.title.gsub!(/ burning man /i, " BRC ")
+	
 	#title = p.title#[0..60]
 	dest = p.title.deprive[regex_d]
 	dest.strip! if dest.is_a? String
@@ -411,7 +411,10 @@ posts.each do |p|
     #The solution is to fix ::deprive, untill then, deprive is only called if
     #the final () doesn't contain the final dest. 
     dest = (cities&dest.deprive.bag).sort_by do |l| 
-      p.title.deprive[regex_d].downcase.index(l.downcase) 
+      r = p.title.deprive[regex_d].downcase.index(l.downcase) 
+      #.01% of people will place their destination in the middle ()
+      r = p.title[regex_d].downcase.index(l.downcase) if r==nil
+      r
     end
   else
     dest = (cities&dest.deprive.bag).sort_by do |l|
@@ -439,8 +442,13 @@ posts.each do |p|
 	#  next
 =end 
   if p.title=~/ to /i and dest == ""
+    puts p.title
     p.title = p.title.gsub!(/ to /i, "") if redoLevel==0
     p.title = " to "+p.title if redoLevel==1
+    if(redoLevel==2)
+      p.title[/#{orig}/i]='' unless p.title[/#{orig}/i]==nil
+      p.title[/ from /i]="" if p.title[/ from /i]
+    end
     redoLevel += 1
     redo unless redoLevel>3
   end
