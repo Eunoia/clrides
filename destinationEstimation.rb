@@ -26,7 +26,7 @@ class Results < ActiveRecord::Base
  
  #  belongs_to(:posts,{ :foreign_key => :cid, :primary_key => :cid})
 end
-#ActiveRecord::Base.logger = Logger.new("/Users/carsonhill/pants.log")
+#ActiveRecord::Base.logger = Logger.new("/destinationEstimation.log")
 class Fixnum
   def is_upper_case?
     self.chr=~/[A-Z]/ ? true  : false
@@ -58,10 +58,12 @@ end
 if ARGV[0]
 	posts = [Posts.find_by_cid(ARGV[0])]
 else
+  recent = Time.now - (60*60) 
+  posts = Posts.all(:conditions => "posted > #{recent} ")
  #posts = Posts.all(:conditions => 'title  like "%no%ca%"')
 	#posts = Posts.all(:conditions => 
 	  #{:posted => (Time.now.to_i-(60*60*10))..Time.now.to_i, :city=> :santabarbara })
-   posts = Posts.find(:all)
+#   posts = Posts.find(:all)
 end
 
 dests = []
@@ -114,7 +116,7 @@ notCities.each { |notCity| cities.delete(notCity) }
 malWords =  %w{ pool limo calander Ridejoy BayShuttle dui  casino } 
 malWords += %w{ commute taxi rentals designated commuting }
 malWords += %w{ relayrides flat| Shawn| MESSENGER| Errand| Errand }
-malWords += %w{ driver| pool| mckenna M-F| Mon-Fri }
+malWords += %w{ driver| pool| mckenna M-F| Mon-Fri tingly }
 malWords.each do |mal|
   posts.reject! do |post|  
     if(mal[-1..-1]=="|")
