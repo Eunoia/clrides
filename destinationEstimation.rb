@@ -55,11 +55,15 @@ def further(o,*p)
   #This function returns which point in array p is furtist from point o
 end
 
-if ARGV[0]
+if ARGV[0].to_i>0
 	posts = [Posts.find_by_cid(ARGV[0])]
 else
-  recent = Time.now - (60*60) 
-  posts = Posts.all(:conditions => "posted > #{recent} ")
+  recent = Time.now.to_i - (60*60)
+  if(ARGV[0]=='-a')
+    posts = Posts.find(:all)
+  else
+    posts = Posts.all(:conditions => "posted > #{Time.now.to_i - (60*60)} ")
+  end
  #posts = Posts.all(:conditions => 'title  like "%no%ca%"')
 	#posts = Posts.all(:conditions => 
 	  #{:posted => (Time.now.to_i-(60*60*10))..Time.now.to_i, :city=> :santabarbara })
