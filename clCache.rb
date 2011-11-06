@@ -57,7 +57,7 @@ cities.each do |city|
 		result.leaving = -1
 		result.algorithm = 0
     post = Posts.new();
-    post.mode = 	0
+    post.mode = 	-1
     post.cid = 		cid.to_i
     post.title = 	title
     post.content = content

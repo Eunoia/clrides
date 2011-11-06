@@ -16,6 +16,10 @@ require 'colors'
 require './ardbinfo.rb'
 include Database
 
+malWords =  %w{ pool limo calander Ridejoy BayShuttle dui  casino } 
+malWords += %w{ commute taxi rentals  designated commuting Errand }
+malWords += %w{ relayrides flat| Shawn| MESSENGER| Errand| Errand }
+malWords += %w{ driver| pool| mckenna M-F| Mon-Fri tingly }
 
 places = YAML::load File.open("cities.yaml").read
 places = places.select{ |l| l=~/ / }.map{ |l| l.split }.flatten.uniq
@@ -76,6 +80,15 @@ results.each do |result|
   post = Posts.find_all_by_cid(result.cid)[0]
   errors << result.cid  if post==nil
   next if post==nil
+  #mode is the fitness of a post: 1 fit, 0 unfit
+  malWords.each do |mal|
+    if(mal[-1..-1]=="|")
+      post.mode = 0 if post.title=~/#{mal[0..-2]}/i
+    else
+      post.mode = 0 if post.content=~/#{mal}/i
+    end
+  end
+  post.mode = 1 if post.mode==-1
   text = post.title
   if(text=~/\)/ and text=~/\(/)
 	 l = text.index("(")
@@ -90,11 +103,16 @@ results.each do |result|
   text = text.downcase.scan(/[a-z\d{,3} ]/).to_s.split-places
   text = text.join(" ")
   resp = b.classify(text)
-  puts resp.bold+"\t\t"+post.title[0..60]
+  if(post.mode==1)
+    puts resp.bold.green+"\t\t"+post.title[0..60]
+  else
+    puts resp.bold.yellow+"\t\t"+post.title[0..60]
+  end
   wo = resp.to_s.downcase.intern==:offered ? 1 : 0
   result.wo = wo
   result.algorithm = 0
 	result.save
+	post.save
 end
 time = Time.now.to_i - start
 m = (time/60).to_i

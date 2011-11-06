@@ -117,6 +117,7 @@ notCities += %w{ bucks station love bunch  vacation  affordable }
 notCities += %w{ joes nice }
 notCities.each { |notCity| cities.delete(notCity) }
 @cities = cities
+=begin
 malWords =  %w{ pool limo calander Ridejoy BayShuttle dui  casino } 
 malWords += %w{ commute taxi rentals designated commuting }
 malWords += %w{ relayrides flat| Shawn| MESSENGER| Errand| Errand }
@@ -130,6 +131,7 @@ malWords.each do |mal|
     end
   end
 end
+=end
 atEnd = []
 redoLevel = 0;
 regex_d = /\Wto(o)?(ward(s)?)? +(\w+( +|\/|\.)?)+/i
