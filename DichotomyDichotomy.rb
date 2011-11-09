@@ -19,7 +19,7 @@ include Database
 malWords =  %w{ pool limo calander Ridejoy BayShuttle dui  casino } 
 malWords += %w{ commute taxi rentals  designated commuting Errand }
 malWords += %w{ relayrides flat| Shawn| MESSENGER| Errand| Errand }
-malWords += %w{ driver| pool| mckenna M-F| Mon-Fri tingly }
+malWords += %w{ driver| pool| mckenna M-F| Mon-Fri tingly Shawns| }
 
 places = YAML::load File.open("cities.yaml").read
 places = places.select{ |l| l=~/ / }.map{ |l| l.split }.flatten.uniq
