@@ -64,10 +64,11 @@ else
   else
     posts = Posts.all(:conditions => "posted > #{Time.now.to_i - (60*60)} ")
   end
- #posts = Posts.all(:conditions => 'title  like "%no%ca%"')
+ posts = Posts.all(:conditions => 'title like "% for %" and title not like "% to %"')
 	#posts = Posts.all(:conditions => 
 	  #{:posted => (Time.now.to_i-(60*60*10))..Time.now.to_i, :city=> :santabarbara })
-#   posts = Posts.find(:all)
+  posts = Posts.find(:all)
+
 end
 
 dests = []
@@ -101,7 +102,9 @@ cities += %w{ Charboneau  Navodo  anchorage UCSC  atlantic Yellowstone }
 cities += %w{ Toppenish UCSC Durango lacey cabo Tonasket Spanaway elum }
 cities += %w{ Kelowna Tucson FLAGSTAFF SEDONA  financial fair hangtown }
 cities += %w{ union UCD Eastside Carolina medford Esalen Reno Red Hawk }
-cities += %w{ cle station Breitenbush Downtown  Seatac}
+cities += %w{ cle station Breitenbush Downtown Seatac UnionStation pac }
+cities += %w{ bernal Tulsa mission district USF telegraph hill Topanga }
+cities += %w{ Woodland Hills BigSur}
 #The pnw devides towns into quarters. My regexp can't hack it, so maybe latter
 #cities += %w{  } 
 fp = File.open("locals.csv","w")
@@ -114,7 +117,7 @@ notCities += %w{ trailer travel  dew village r  ready d out day }
 notCities += %w{ albina Alviso giant bull American  Avenue date }
 notCities += %w{ fair dog  way  manor  blink  old place   sugar }
 notCities += %w{ bucks station love bunch  vacation  affordable }
-notCities += %w{ joes nice }
+notCities += %w{ joes nice turkey l c V }
 notCities.each { |notCity| cities.delete(notCity) }
 @cities = cities
 =begin
@@ -158,7 +161,9 @@ posts.each do |p|
     if(finalParens!=nil)
       if(finalParens.reverse[1..-2]=~/-/)
   	    #p.title.gsub!("-"," to ")
-  	    p.title[p.title.scan(/\(.+-.+\)/)[0]]=p.title.scan(/\(.+-.+\)/)[0].gsub("-"," to ")
+  	    if !(p.title[-5..-1]=~/-\W*\)/)
+  	      p.title[p.title.scan(/\(.+-.+\)/)[0]]=p.title.scan(/\(.+-.+\)/)[0].gsub("-"," to ")
+        end
       end
     end
   end
@@ -169,11 +174,10 @@ posts.each do |p|
       p.title.gsub!(/:/i, " to ")
     end
     p.title.gsub!("-"," to ") #unless p.title=~/ to /i
-  end
-	
+  end  
   p.title.gsub!(" 2 ", " to ")
   p.title.gsub!(":"," ")
-  p.title.gsub!(/ too /i," to ")
+  p.title.gsub!(/ too /i," to ") unless p.title=~/ to /i
   p.title.gsub!("!", " ")
   p.title.tr!(".","")
 #	p.title.gsub!(/:/, " to ") unless p.title=~/ to /i
@@ -190,7 +194,7 @@ posts.each do |p|
 	p.title.tr!("\'","")
 	#people be round trippin, breaking my nlp
 	p.title.gsub!(/ to and from /i," to ")
-	p.title = " to "+p.title unless p.title=~/ to /i
+	p.title = " to "+p.title if(p.title[regex_d]==nil)
 	#Google thinks that lodi italy is more relevent
 	p.title.gsub!(/ lodi /i, " Lodi California ")
 #	p.title.gsub!(/ south bay /i, " San Jose ") #Confusion with la
@@ -199,7 +203,7 @@ posts.each do |p|
 	p.title.gsub!(/ diego /i, " San Diego ")
 	p.title.gsub!(/ BOI /i, " Boise ")
 	p.title.gsub!(/ san san /i, " San ")
-	p.title.gsub!(/ (half)? ?(the)?mo+n ?(bay)? /i, " Half Moon Bay ")
+	p.title.gsub!(/ (half)? ?(the)?moon ?(bay)? /i, " Half Moon Bay ")
 	p.title.gsub!(/ san ?d(i|e)?(e|i)?go /i, " San Diego ")
 	p.title.gsub!(/ Por(t)?(l)*and/i, " portland ")
 	p.title.gsub!(/ sd /i, " San Diego ")
@@ -215,9 +219,7 @@ posts.each do |p|
 	p.title.gsub!(/ sanfran /i, " San Francisco ")
   #This line turns all the permutations of So Cal into one word
   p.title.gsub!(/ so(\w|\.)* *ca\w+ /i, " socal ")
-  #This still cannot differentiate between NorCal and North Carolina
-  #p.title.gsub!(/ n(o)?(r)?\w*(-| )*ca([^r]| )?\w* /i," norCal ")
-  p.title.gsub!(/ n(o)?(r)?\w*(-| )*ca([^r]| )+ /i," norCal ")
+  p.title.gsub!(/ n(o)?(r)?\w*(-| )*ca([^r]| )+/i," norCal ")
   p.title.gsub!(/ ny(c)? /i," New York ")
   
 	#Fun fact: Google returns the choords of sac airport, but can't
@@ -232,14 +234,14 @@ posts.each do |p|
 	p.title.gsub!(/ W\.? *Hills /i," Woodland hills ")	
 	p.title.gsub!(/ s\.?f\.? /i, " SF ")
 	p.title.gsub!(/ sfbay /i, " sf bay area ")
+	p.title.gsub!(/ big sur /i, " BigSur ")
 	p.title.gsub!(/ Frisco /i, " SF ")
 	p.title.gsub!(/ Re(a)?dding /i, " Redding ")	
 	p.title.gsub!(/ Los Ang+ /i, " Los angeles ")
 	p.title.gsub!(/ Tu(s|c)?(s|c)?on /i, " Tucson ")
 	p.title.gsub!(/ Mich /i, " Michigan ")
 	p.title.gsub!(/ nc /i, " North carolina ")
-	p.title.gsub!(/ Orang(e) /i," orange ")
-  
+	p.title.gsub!(/ Orang(e) /i," orange ")  
 	p.title.gsub!(/ o( |\.)?c( |\.)?( |\/)/i, " Irvaheim ")
 	p.title.gsub!(/ sd /i, " San Diego ")
 	p.title.gsub!(/ sm /i, " Santa Maria ")
@@ -283,7 +285,7 @@ posts.each do |p|
 	#p.title.gsub!(/ FURTHUR /i, " Eugene ")
   p.title.gsub!(/ folsom( steet)?( fair)? /i, " SF ")
 	p.title.gsub!(/ Treasure Island Music Festival /, " San Francisco ")
-	p.title.gsub!(/ Hardly Strictly( Bluegrass)?( Festival)? /i, " SF ")
+	p.title.gsub!(/ Hardly Strictly( blue ?grass)?( Festival)? /i, " SF ")
 	p.title.gsub!(/ brc /i, " burning man ")
 	p.title.gsub!(/ Wordstock /i, " Portland ")
 	p.title.gsub!(/ n( )?j /i, " NJ ")
@@ -355,6 +357,7 @@ posts.each do |p|
   	  orig = orig.bag.join(" ") if orig=~/\'/i
   	  orig = orig.split("-")[0] if orig=~/-/i
       orig = (cities&orig.deprive.bag).sort_by{ |l| p.title.bag.index(l) }      
+
       orig = p.city if(orig.empty?)
       orig = orig.to_a if orig.is_a? String
       orig = orig.map!{ |d| d.capitalize }.join(" ")
@@ -457,14 +460,16 @@ posts.each do |p|
 =end 
   if p.title=~/ to /i and dest == ""
     puts p.title
-    p.title = p.title.gsub!(/ to /i, "") if redoLevel==0
-    p.title = " to "+p.title if redoLevel==1
-    if(redoLevel==2)
+    p.title = p.title.gsub(/ for /i," to ") if(redoLevel==0)
+    p.title = p.title.gsub!(/ to /i, "") if redoLevel==1
+    p.title = " to "+p.title if redoLevel==2
+    if(redoLevel==3)
       p.title[/#{orig}/i]='' unless p.title[/#{orig}/i]==nil
       p.title[/ from /i]="" if p.title[/ from /i]
     end
+    p.title = p.title.gsub(/ for /i," to ") if(redoLevel==4)
     redoLevel += 1
-    redo unless redoLevel>3
+    redo unless redoLevel>4
   end
   if(dest=~/vancouver/i and not dest=~/bc/i and p.city!="portland")
     dest += " bc " if(p.title=~/b(\.)?c(\.)?/i or p.content=~/b(\.)?c(\.)?/i)
@@ -517,7 +522,7 @@ posts.each do |p|
 end
 #Shrink this list
 #puts dests.find_all{ |o|  not o[:t]=~/(la|sf)/i and o[:t].length<5}.map{ |l| l[:t] }.uniq
-#debugger
+debugger
 ""
 
 #Oct 12 
@@ -549,3 +554,5 @@ pp citiesProper.uniq
 at this point, it runs in about .7 seconds, and retuns 
 [[], ["los", "angeles"], ["san", "diego"], ["san"], ["los"], ["irvaheim"]]
 =end
+empty = dests.select{|d| d[:t]!=""}
+puts "#{empty.length}/#{posts.length} Falure Rate: #{empty.length/posts.length.to_f*100}%"
