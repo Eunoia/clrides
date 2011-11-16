@@ -145,9 +145,8 @@ regex_d = /\Wto(o)?(ward(s)?)? +(\w+( +|\/|\.)?)+/i
 regex_o = /\Wfrom +(\w+( +|\/)?)+/i
 @regex_d = regex_d
 posts.each do |p|
-  	
+  next if p==nil	
   print p.cid.to_s+"   "
-  debugger if p.cid==2627740026
 	p.title = (" "+p.title+" ")
 	p.title.gsub!(".."," ") 
 	p.title.gsub!("*"," ")
