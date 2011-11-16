@@ -61,13 +61,17 @@ else
   recent = Time.now.to_i - (60*60)
   if(ARGV[0]=='-a')
     posts = Posts.find(:all)
+  elsif(ARGV[0]=='-r')
+    posts = Posts.all(:conditions => "posted > #{Time.now.to_i - (60*60*ARGV[1].to_i)} ")
   else
-    posts = Posts.all(:conditions => "posted > #{Time.now.to_i - (60*60)} ")
+  posts = Results.find_all_by_orig("").map{ |r_| r_.cid }.map do |cid|
+     Posts.find_by_cid(cid)
   end
- posts = Posts.all(:conditions => 'title like "% for %" and title not like "% to %"')
+end
+ #posts = Posts.all(:conditions => 'title like "% for %" and title not like "% to %"')
 	#posts = Posts.all(:conditions => 
 	  #{:posted => (Time.now.to_i-(60*60*10))..Time.now.to_i, :city=> :santabarbara })
-  posts = Posts.find(:all)
+ # posts = Posts.find(:all)
 
 end
 
@@ -104,7 +108,7 @@ cities += %w{ Kelowna Tucson FLAGSTAFF SEDONA  financial fair hangtown }
 cities += %w{ union UCD Eastside Carolina medford Esalen Reno Red Hawk }
 cities += %w{ cle station Breitenbush Downtown Seatac UnionStation pac }
 cities += %w{ bernal Tulsa mission district USF telegraph hill Topanga }
-cities += %w{ Woodland Hills BigSur British}
+cities += %w{ Woodland Hills BigSur British Notre Dame Indiana}
 #The pnw devides towns into quarters. My regexp can't hack it, so maybe latter
 #cities += %w{  } 
 fp = File.open("locals.csv","w")
@@ -140,9 +144,10 @@ redoLevel = 0;
 regex_d = /\Wto(o)?(ward(s)?)? +(\w+( +|\/|\.)?)+/i
 regex_o = /\Wfrom +(\w+( +|\/)?)+/i
 @regex_d = regex_d
-
-posts.each do |p|	
+posts.each do |p|
+  	
   print p.cid.to_s+"   "
+  debugger if p.cid==2627740026
 	p.title = (" "+p.title+" ")
 	p.title.gsub!(".."," ") 
 	p.title.gsub!("*"," ")
@@ -193,7 +198,7 @@ posts.each do |p|
 	end
 	p.title.tr!("\'","")
 	#people be round trippin, breaking my nlp
-	p.title.gsub!(/ to and from /i," to ")
+	p.title.gsub!(/ to and (from|back (from)?) /i," to ")
 	p.title = " to "+p.title if(p.title[regex_d]==nil)
 	#Google thinks that lodi italy is more relevent
 	p.title.gsub!(/ lodi /i, " Lodi California ")
@@ -459,18 +464,25 @@ posts.each do |p|
   end
 	#  next
 =end 
-  if p.title=~/ to /i and dest == ""
-    puts p.title
-    p.title = p.title.gsub(/ for /i," to ") if(redoLevel==0)
-    p.title = p.title.gsub!(/ to /i, "") if redoLevel==1
-    p.title = " to "+p.title if redoLevel==2
-    if(redoLevel==3)
+  if  dest == ""
+=begin
+#This section of code is suspended. I don't know how much it is improving dest 
+#detection. It is also buggy, undocumented, and results in spegetti code. I'm
+#not saying that the if dest=="" then blah; redo is not to be done, but it needs
+#more analysis
+  #  debugger
+    puts redoLevel.to_s.bold.yellow+p.title
+    p.title = p.title.gsub!(/ for /i," to ") if(redoLevel==0)
+    #p.title = p.title.gsub!(/ to /i, "") if redoLevel==1
+    #p.title = " to "+p.title if redoLevel==2
+    if(redoLevel==1)
       p.title[/#{orig}/i]='' unless p.title[/#{orig}/i]==nil
       p.title[/ from /i]="" if p.title[/ from /i]
     end
-    p.title = p.title.gsub(/ for /i," to ") if(redoLevel==4)
+    #p.title = p.title.gsub(/ for /i," to ") if(redoLevel==3)
     redoLevel += 1
     redo unless redoLevel>4
+=end
   end
   if(dest=~/vancouver/i and not dest=~/bc/i and p.city!="portland")
     dest += " bc " if(p.title=~/b(\.)?c(\.)?/i or p.content=~/b(\.)?c(\.)?/i)
