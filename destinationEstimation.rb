@@ -104,7 +104,7 @@ cities += %w{ Kelowna Tucson FLAGSTAFF SEDONA  financial fair hangtown }
 cities += %w{ union UCD Eastside Carolina medford Esalen Reno Red Hawk }
 cities += %w{ cle station Breitenbush Downtown Seatac UnionStation pac }
 cities += %w{ bernal Tulsa mission district USF telegraph hill Topanga }
-cities += %w{ Woodland Hills BigSur}
+cities += %w{ Woodland Hills BigSur British}
 #The pnw devides towns into quarters. My regexp can't hack it, so maybe latter
 #cities += %w{  } 
 fp = File.open("locals.csv","w")
@@ -219,6 +219,7 @@ posts.each do |p|
 	p.title.gsub!(/ sanfran /i, " San Francisco ")
   #This line turns all the permutations of So Cal into one word
   p.title.gsub!(/ so(\w|\.)* *ca\w+ /i, " socal ")
+  p.title.gsub!(/ bc /i, " British Columbia ")
   p.title.gsub!(/ n(o)?(r)?\w*(-| )*ca([^r]| )+/i," norCal ")
   p.title.gsub!(/ ny(c)? /i," New York ")
   
@@ -522,7 +523,7 @@ posts.each do |p|
 end
 #Shrink this list
 #puts dests.find_all{ |o|  not o[:t]=~/(la|sf)/i and o[:t].length<5}.map{ |l| l[:t] }.uniq
-debugger
+#debugger
 ""
 
 #Oct 12 
@@ -554,5 +555,5 @@ pp citiesProper.uniq
 at this point, it runs in about .7 seconds, and retuns 
 [[], ["los", "angeles"], ["san", "diego"], ["san"], ["los"], ["irvaheim"]]
 =end
-empty = dests.select{|d| d[:t]!=""}
+empty = dests.select{|d| d[:t]==""}
 puts "#{empty.length}/#{posts.length} Falure Rate: #{empty.length/posts.length.to_f*100}%"
