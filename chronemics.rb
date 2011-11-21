@@ -33,25 +33,22 @@ else
   recent = Time.now.to_i - (60*60)
   if(ARGV[0]=='-a')
     posts = Posts.find(:all)
-  else
-    #results = Results.find_all_by_wo(1)
-    #posts = Posts.find(:all, :conditions=> "cid in ("+results.map{|r|r.cid}.join(",")+")")
-    #posts = posts.select{ |l| l.mode==1 }
-    posts = Posts.find_all_by_city("sfbay", :conditions => 'posted > 1320217200 and posted < 1320303599')
   end
- #posts = Posts.all(:conditions => 'title  like "%no%ca%"')
-	#posts = Posts.all(:conditions => 
-	  #{:posted => (Time.now.to_i-(60*60*10))..Time.now.to_i, :city=> :santabarbara })
-#   posts = Posts.find(:all)
+  posts = Results.find_all_by_leaving(-1).map{ |r_| r_.cid }.map do |cid|
+      Posts.find_by_cid(cid)
+  end
 end
 nils = 0
 posts.sort_by{ |p| p.posted }
+=begin
 posts = posts.select do |p|
   r = Results.find_by_cid p.cid
   r.wo==0
 end
-#posts = posts[0..100]
+=end
+#posts = posts[0..10]
 tact = TactfulTokenizer::Model.new
+exit if posts.empty?
 posts.each do |post|
   print post.cid.to_s.bold+"  "
   post.title.gsub!(/a\.m\./i,"am")
@@ -85,52 +82,11 @@ posts.each do |post|
   else
     resp = nil
   end
-=begin
-  resp =  Nickel.parse(post.title, Time.at(post.posted))
-  #debugger
-  if(!resp.occurrences.empty?)
-    dt = Date.parse resp.occurrences[-1].start_date.date  
-  else
-    resp = nil
-  end
-  if(resp==nil)
-    c = post.content
-    begin
-      resp =  Nickel.parse(c, Time.at(post.posted))
-      
-    rescue NoMethodError, RuntimeError
-      c = c.split[3..-3].join(" ")
-      retry
-    end
-    if(resp.message.normalize!=post.content.normalize)
-      if(!resp.occurrences.empty?)
-        dt = Date.parse resp.occurrences[-1].start_date.date
-      else
-        idx = 0
-        c = post.content        
-        c = c.split(/\n+/)
-        #Use tactfull tokanizer for this
-        c = c.join.split(/\.+/i) if(c.length<2)
-        while(resp.occurrences.empty? and idx<c.length)
-          
-          begin
-            resp = Nickel.parse(c[idx], Time.at(post.posted))
-          rescue RuntimeError, NoMethodError
-            break if(c[idx].split[3..-3])==nil
-            c[idx] = c[idx].split[3..-3].join(" ")
-            retry
-          end
-          idx+=1 if(resp.occurrences.empty?)
-        end
-        if(resp.occurrences.empty?)
-          dt = nil
-        else
-          dt = Date.parse resp.occurrences[-1].start_date.date
-        end
-      end
-    end
-  end
-=end
+  result = Results.find_by_cid(post.cid) 
+  toDB = (Time.parse dt.to_s).to_i unless dt==nil
+  toDB = 0 if  dt==nil
+  result.leaving = toDB
+  result.save
   print dt.to_s
   nils+=1 unless dt
   print "\n"
