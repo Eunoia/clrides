@@ -253,7 +253,7 @@ posts.each do |p|
 	p.title.gsub!(/ sugar pine /i, " SugarPine ")
 	p.title.gsub!(/ osos /i, " los osos ")
 	p.title.gsub!(/ Obi(s|p|b)(s|p|b)o /i," Obispo " )
-	p.title.gsub!(/ bak(e|o)\w* /i, " Bakersfield ")
+	p.title.gsub!(/ bak(o)\w* /i, " Bakersfield ")
 	p.title.gsub!(/ down ?town /i, " Downtown ")
 	p.title.gsub!(/ Arca(d|t)a /i, " Arcata ")
 	p.title.gsub!(/ K\w* Falls /i, " Klamath Falls ")

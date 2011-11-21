@@ -78,4 +78,4 @@ server/wop
 server/destp
 server/origp
 server/leavingp
-
+http://blog.nodejitsu.com/how-to-write-a-readme
