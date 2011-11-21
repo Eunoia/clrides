@@ -9,23 +9,9 @@ require 'ruby-debug'
 require 'sqlite3'
 #require 'json'
 require 'colors'
+require './ardbinfo.rb'
+include Database
 
-#This file should be called LocusPocus, he he he
-ActiveRecord::Base.establish_connection(
-	:adapter => "sqlite3",
-	:database => "posts.sql"
-)
-class Posts < ActiveRecord::Base
-  # validates_uniqueness_of :cid
-  set_primary_key :cid
-  # has_one(:result, {:foreign_key => :cid , :primary_key => :cid })
-end
-class Results < ActiveRecord::Base
- #  validates_uniqueness_of :cid
- set_primary_key :cid
- 
- #  belongs_to(:posts,{ :foreign_key => :cid, :primary_key => :cid})
-end
 #ActiveRecord::Base.logger = Logger.new("/destinationEstimation.log")
 class Fixnum
   def is_upper_case?
@@ -108,7 +94,8 @@ cities += %w{ Kelowna Tucson FLAGSTAFF SEDONA  financial fair hangtown }
 cities += %w{ union UCD Eastside Carolina medford Esalen Reno Red Hawk }
 cities += %w{ cle station Breitenbush Downtown Seatac UnionStation pac }
 cities += %w{ bernal Tulsa mission district USF telegraph hill Topanga }
-cities += %w{ Woodland Hills BigSur British Notre Dame Indiana}
+cities += %w{ Woodland  Hills  BigSur British  Dame  Indiana Wisconsin }
+cities += %w{ Notre }
 #The pnw devides towns into quarters. My regexp can't hack it, so maybe latter
 #cities += %w{  } 
 fp = File.open("locals.csv","w")
@@ -566,5 +553,6 @@ pp citiesProper.uniq
 at this point, it runs in about .7 seconds, and retuns 
 [[], ["los", "angeles"], ["san", "diego"], ["san"], ["los"], ["irvaheim"]]
 =end
-empty = dests.select{|d| d[:t]==""}
-puts "#{empty.length}/#{posts.length} Falure Rate: #{empty.length/posts.length.to_f*100}%"
+empty = dests.select{|d| d[:t]==""}+atEnd
+print "#{empty.length}/#{posts.length} Falure Rate: "
+printf("%.2f%%\n",(empty.length/posts.length.to_f)*100)
