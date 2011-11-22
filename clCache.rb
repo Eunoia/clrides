@@ -9,16 +9,16 @@ include Database
 unless(File.exists?("posts.sql")) 
 	ActiveRecord::Schema.define do
 		create_table(:posts, :id=>false) do |table|
-			table.column :cid,      :integer
+			table.column :cid,      :bigint
 			table.column :title,    :string	
-			table.column :content , :string
+			table.column :content , :text
 			table.column :city,     :string
 			table.column :link ,    :string
 			table.column :posted,   :integer      
 		end
 		add_index(:posts,:cid, :unique => true)
 		create_table(:results, :id=>false) do |table|
-			table.column :cid,      :integer
+			table.column :cid,      :bigint
 			table.column :wo,       :integer
 			table.column :fitness,  :integer 
 			table.column :dest,     :string  
@@ -33,7 +33,7 @@ cities = [:losangeles, :santabarbara, :santamaria, :slo,
 posts = cities.map do |city|
 	print city.to_s.upcase
 	feed = "http://#{city.to_s}.craigslist.org/rid/index.rss"
-	rss = Hpricot.parse(Net::HTTP.get(URI.parse(feed)))
+	rss = Hpricot.parse(Iconv.conv('utf-8', 'latin1',Net::HTTP.get(URI.parse(feed))))
 	print "."
 	redo if rss == nil
 	posts = (rss/:item).collect do |r|
