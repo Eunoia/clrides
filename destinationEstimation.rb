@@ -349,7 +349,10 @@ posts.each do |p|
   	  orig = orig.split(",")[0] #if(orig.split(",").length>2)
   	  orig = orig.bag.join(" ") if orig=~/\'/i
   	  orig = orig.split("-")[0] if orig=~/-/i
-      orig = (cities&orig.deprive.bag).sort_by{ |l| p.title.bag.index(l) }      
+      orig = (cities&orig.deprive.bag).sort_by do |l| 
+        r = p.title.bag.index(l)
+        p.title.bag.index(l) unless r==nil
+      end 
 
       orig = p.city if(orig.empty?)
       orig = orig.to_a if orig.is_a? String
