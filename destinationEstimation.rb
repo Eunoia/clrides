@@ -54,6 +54,7 @@ else
      Posts.find_by_cid(cid)
   end
 end
+# posts = Posts.all(:conditions => 'title like "%n%cal%"')
  #posts = Posts.all(:conditions => 'title like "% for %" and title not like "% to %"')
 	#posts = Posts.all(:conditions => 
 	  #{:posted => (Time.now.to_i-(60*60*10))..Time.now.to_i, :city=> :santabarbara })
@@ -95,7 +96,7 @@ cities += %w{ union UCD Eastside Carolina medford Esalen Reno Red Hawk }
 cities += %w{ cle station Breitenbush Downtown Seatac UnionStation pac }
 cities += %w{ bernal Tulsa mission district USF telegraph hill Topanga }
 cities += %w{ Woodland  Hills  BigSur British  Dame  Indiana Wisconsin }
-cities += %w{ Notre Wilmington SOMA}
+cities += %w{ Notre Wilmington SOMA Inland Empire }
 #The pnw devides towns into quarters. My regexp can't hack it, so maybe latter
 #cities += %w{  } 
 fp = File.open("locals.csv","w")
@@ -171,6 +172,7 @@ posts.each do |p|
   p.title.gsub!(/ too /i," to ") unless p.title=~/ to /i
   p.title.gsub!("!", " ")
   p.title.tr!(".","")
+  p.title.gsub!(/ca\$+h/i, "")
 #	p.title.gsub!(/:/, " to ") unless p.title=~/ to /i
 #	p.title.gsub!(/-/, " to ") unless p.title=~/ to /i
 #	p.title.gsub!(/-/," - ")
@@ -211,7 +213,7 @@ posts.each do |p|
   #This line turns all the permutations of So Cal into one word
   p.title.gsub!(/ so(\w|\.)* *ca\w+ /i, " socal ")
   p.title.gsub!(/ bc /i, " British Columbia ")
-  p.title.gsub!(/ n(o)?(r)?\w*(-| )*ca([^r]| )+/i," norCal ")
+  p.title.gsub!(/ n(o)?(r)?(^e)+\w*(-| )*ca([^r]| )+/i," norCal ")
   p.title.gsub!(/ ny(c)? /i," New York ")
   
 	#Fun fact: Google returns the choords of sac airport, but can't
@@ -226,6 +228,7 @@ posts.each do |p|
   p.title.gsub!(/ b(e)?(v)? hills/i, " Beverly Hills ")
 	p.title.gsub!(/ W\.? *Hills /i," Woodland hills ")	
 	p.title.gsub!(/ s\.?f\.? /i, " SF ")
+	p.title.gsub!(/ i\.?e\.? /i, " Inland Empire ")
 	p.title.gsub!(/ sfbay /i, " sf bay area ")
 	p.title.gsub!(/ big sur /i, " BigSur ")
 	p.title.gsub!(/ Frisco /i, " SF ")
@@ -349,11 +352,9 @@ posts.each do |p|
   	  orig = orig.split(",")[0] #if(orig.split(",").length>2)
   	  orig = orig.bag.join(" ") if orig=~/\'/i
   	  orig = orig.split("-")[0] if orig=~/-/i
-      orig = (cities&orig.deprive.bag).sort_by do |l| 
-        r = p.title.bag.index(l)
-        p.title.bag.index(l) unless r==nil
+     orig = (cities&orig.deprive.bag).sort_by do |l| 
+		   r = p.title.bag.index(l)
       end 
-
       orig = p.city if(orig.empty?)
       orig = orig.to_a if orig.is_a? String
       orig = orig.map!{ |d| d.capitalize }.join(" ")

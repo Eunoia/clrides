@@ -95,4 +95,4 @@ end
 #puts "Fails: #{nils}"
 print nils.to_s+" out of #{posts.length} posts couldn't be dated: "
 failRate = ((100*nils)/posts.length.to_f)
-printf("%2.2f%% failure rate",failRate)
+printf("%2.2f%% failure rate\n",failRate)
