@@ -95,7 +95,7 @@ cities += %w{ union UCD Eastside Carolina medford Esalen Reno Red Hawk }
 cities += %w{ cle station Breitenbush Downtown Seatac UnionStation pac }
 cities += %w{ bernal Tulsa mission district USF telegraph hill Topanga }
 cities += %w{ Woodland  Hills  BigSur British  Dame  Indiana Wisconsin }
-cities += %w{ Notre Wilmington SOMA}
+cities += %w{ Notre Wilmington SOMA Pierre }
 #The pnw devides towns into quarters. My regexp can't hack it, so maybe latter
 #cities += %w{  } 
 fp = File.open("locals.csv","w")
@@ -351,8 +351,7 @@ posts.each do |p|
   	  orig = orig.split("-")[0] if orig=~/-/i
       orig = (cities&orig.deprive.bag).sort_by do |l| 
         r = p.title.bag.index(l)
-        p.title.bag.index(l) unless r==nil
-      end 
+      end
 
       orig = p.city if(orig.empty?)
       orig = orig.to_a if orig.is_a? String
