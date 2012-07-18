@@ -1,7 +1,7 @@
 require 'net/http'
 require 'rubygems'
 require 'active_record'
-#require 'ruby-debug'
+require 'ruby-debug'
 require 'hpricot'
 require './ardbinfo.rb'
 include Database
@@ -41,7 +41,7 @@ posts = cities.map do |city|
 		next if(!Posts.find_all_by_cid(cid).empty?)
 		title = (r/:title).text.gsub(">"," to ")
 		content = (r/:description).text.gsub("<br.{0,3}>", "\n")
-		content = content[0..content.index("<!-- START")-1]
+		content = content[0..content.index("<!-- START")||0-1]
 		#.gsub(%r{</?[^>]+?>}, '') #This should strip html
 		#content = content.tr(",",".").tr("\n","   ")[0..-5]
 		content = Hpricot::parse(content).inner_text
